@@ -1,6 +1,6 @@
 #[derive(Debug, Clone)]
 pub struct Agent {
-    tagged: bool
+    pub tagged: bool,
 }
 
 impl Default for Agent {
