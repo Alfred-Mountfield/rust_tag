@@ -47,8 +47,8 @@ impl Agents {
         let tag_pos = self.pos[tag_idx];
         for (idx, other_pos) in self.pos.iter().enumerate() {
             if idx != tag_idx {
-                if ((tag_pos.x.wrapping_sub(other_pos.x) as i32).abs() as u32) < TAG_RADIUS
-                && ((tag_pos.y.wrapping_sub(other_pos.y) as i32).abs() as u32) < TAG_RADIUS {
+                if ((tag_pos.x as i64 - other_pos.x as i64).abs() as u32) < TAG_RADIUS
+                    && ((tag_pos.y as i64 - other_pos.y as i64).abs() as u32) < TAG_RADIUS {
                     self.tagged[tag_idx] = false;
                     self.tagged[idx] = true;
                     break;
@@ -73,6 +73,4 @@ impl Agents {
             pos.y = new_y as u32;
         }
     }
-
-
 }
