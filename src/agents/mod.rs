@@ -1,6 +1,9 @@
 use rand::{Rng, seq, thread_rng};
 
 use crate::world_grid::WorldGrid;
+use crate::agents::masks::Masks;
+
+mod masks;
 
 const TAG_RADIUS: u32 = 3;
 
@@ -14,6 +17,7 @@ pub struct Coord {
 pub struct Agents {
     pub tagged: Vec<bool>,
     pub pos: Vec<Coord>,
+    pub mask: Masks,
 }
 
 impl Agents {
@@ -24,6 +28,8 @@ impl Agents {
         // Select the first agent as the tagged player
         tagged[0] = true;
 
+        let masks = Masks::new(world_grid.width, world_grid.height, num_agents);
+
         let pos = seq::index::sample(&mut rng, (world_grid.width * world_grid.height) as usize, num_agents as usize)
             .into_iter()
             .map(|idx| {
@@ -33,12 +39,15 @@ impl Agents {
             })
             .collect();
 
+        masks.into_iter().zip();
+
         Self {
             tagged,
             pos,
         }
     }
 
+    #[inline]
     pub fn update(&mut self, world_grid: &mut WorldGrid) {
         self.walk(world_grid);
 
@@ -57,6 +66,7 @@ impl Agents {
         }
     }
 
+    #[inline]
     fn walk(&mut self, world_grid: &mut WorldGrid) {
         let mut rng = thread_rng();
         for pos in self.pos.iter_mut() {

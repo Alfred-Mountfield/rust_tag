@@ -1,5 +1,10 @@
 use crate::agents::{Agents, Coord};
 
+#[derive(Debug, Default)]
+struct Cell {
+    elements: Vec<usize>
+}
+
 #[derive(Debug)]
 pub struct WorldGrid {
     pub width: u32,
@@ -14,10 +19,12 @@ impl WorldGrid {
         }
     }
 
+    #[inline]
     pub fn coord_to_idx(&self, coord: &Coord) -> usize {
         coord.x as usize + (coord.y as usize * self.width as usize)
     }
 
+    #[inline]
     pub fn as_buffer(&self, agents: &Agents) -> Vec<u32> {
         let mut buffer = vec![0u32; (self.width * self.height) as usize];
         agents.pos.iter()
