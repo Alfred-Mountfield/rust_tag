@@ -1,5 +1,6 @@
 use minifb::{Key, Scale, Window, WindowOptions};
 
+use crate::agents::Agents;
 use crate::world_grid::WorldGrid;
 
 mod agents;
@@ -10,7 +11,8 @@ const WORLD_HEIGHT: u32 = 40;
 const NUM_AGENTS: u32 = 10;
 
 fn main() {
-    let world = WorldGrid::new(WORLD_WIDTH, WORLD_HEIGHT, NUM_AGENTS);
+    let mut world = WorldGrid::new(WORLD_WIDTH, WORLD_HEIGHT);
+    let mut agents = Agents::new(NUM_AGENTS, &mut world);
 
     let mut window = Window::new(
         "Tag",
@@ -30,9 +32,11 @@ fn main() {
     window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
+        agents.walk(&mut world);
+
         // We unwrap here as we want this code to exit if it fails. Real applications may want to handle this in a different way
         window
-            .update_with_buffer(&world.as_buffer(), WORLD_WIDTH as usize, WORLD_HEIGHT as usize)
+            .update_with_buffer(&world.as_buffer(&agents), WORLD_WIDTH as usize, WORLD_HEIGHT as usize)
             .unwrap();
     }
 }
