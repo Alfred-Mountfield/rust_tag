@@ -1,10 +1,8 @@
 use minifb::{Key, Scale, Window, WindowOptions};
 
-use crate::agents::Agents;
-use crate::world_grid::WorldGrid;
+use rust_tag::world_grid::WorldGrid;
+use rust_tag::agents::Agents;
 
-mod agents;
-mod world_grid;
 
 const WORLD_WIDTH: u32 = 40;
 const WORLD_HEIGHT: u32 = 40;
