@@ -1,44 +1,31 @@
-use rand::{seq, thread_rng};
-
-use crate::agent::Agent;
+use crate::agents::Agents;
 
 #[derive(Debug)]
 pub struct WorldGrid {
-    cells: Vec<Option<Agent>>,
-    width: usize,
-    height: usize,
+    agents: Agents,
+    width: u32,
+    height: u32,
 }
 
 impl WorldGrid {
-    pub fn new(width: usize, height: usize, num_agents: usize) -> Self {
-        let mut rng = thread_rng();
-        let agent_indices = seq::index::sample(&mut rng, width * height, num_agents);
-        let mut cells: Vec<Option<Agent>> = vec![None; width * height];
-        agent_indices.iter().for_each(|idx| {
-            cells[idx] = Some(Default::default())
-        });
-
-        // Select the first agent as the tagged player
-        cells[agent_indices.index(0)].as_mut().unwrap().tagged = true;
-
+    pub fn new(width: u32, height: u32, num_agents: u32) -> Self {
         Self {
-            cells,
+            agents: Agents::new(num_agents, width, height),
             width,
             height,
         }
     }
 
+
     pub fn as_buffer(&self) -> Vec<u32> {
-        self.cells.iter().map(|is_agent| {
-            // return an RGB chunk showing if there's an agent or not
-            let rgb = is_agent.as_ref().map_or_else(
-                || [0, 0, 0], // no agent
-                |agent| {
-                    if agent.tagged { [0, 0, 255] } else { [0, 255, 0] }
-                },
-            );
-            // convert the RGB array into a u32
-            ((rgb[0] as u32) << 16) | ((rgb[1] as u32) << 8) | rgb[2] as u32
-        }).collect()
+        let mut buffer = vec![0u32; (self.width * self.height) as usize];
+        self.agents.world_idx.iter()
+            .zip(self.agents.tagged.iter())
+            .for_each(|(&idx, &tagged)| {
+                let rgb = if tagged { [0, 0, 255] } else { [0, 255, 0] };
+                buffer[idx] = ((rgb[0] as u32) << 16) | ((rgb[1] as u32) << 8) | rgb[2] as u32;
+            });
+
+        buffer
     }
 }
