@@ -2,6 +2,8 @@ use rand::{Rng, seq, thread_rng};
 
 use crate::world_grid::WorldGrid;
 
+const TAG_RADIUS: u32 = 3;
+
 #[derive(Debug, Copy, Clone)]
 pub struct Coord {
     pub x: u32,
@@ -37,7 +39,25 @@ impl Agents {
         }
     }
 
-    pub fn walk(&mut self, world_grid: &mut WorldGrid) {
+    pub fn update(&mut self, world_grid: &mut WorldGrid) {
+        self.walk(world_grid);
+
+        // Slow and *very* basic manhattan distance calc to find agents nearby to the tagged agent
+        let tag_idx = self.tagged.iter().position(|&e| e == true).unwrap();
+        let tag_pos = self.pos[tag_idx];
+        for (idx, other_pos) in self.pos.iter().enumerate() {
+            if idx != tag_idx {
+                if ((tag_pos.x.wrapping_sub(other_pos.x) as i32).abs() as u32) < TAG_RADIUS
+                && ((tag_pos.y.wrapping_sub(other_pos.y) as i32).abs() as u32) < TAG_RADIUS {
+                    self.tagged[tag_idx] = false;
+                    self.tagged[idx] = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    fn walk(&mut self, world_grid: &mut WorldGrid) {
         let mut rng = thread_rng();
         for pos in self.pos.iter_mut() {
             let mut new_x = pos.x as i64 + (rng.gen_range(-1..2));
@@ -53,4 +73,6 @@ impl Agents {
             pos.y = new_y as u32;
         }
     }
+
+
 }

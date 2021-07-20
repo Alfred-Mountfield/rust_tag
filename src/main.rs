@@ -8,7 +8,7 @@ mod world_grid;
 
 const WORLD_WIDTH: u32 = 40;
 const WORLD_HEIGHT: u32 = 40;
-const NUM_AGENTS: u32 = 10;
+const NUM_AGENTS: u32 = 5;
 
 fn main() {
     let mut world = WorldGrid::new(WORLD_WIDTH, WORLD_HEIGHT);
@@ -29,10 +29,12 @@ fn main() {
         });
 
     // Limit to max ~60 fps update rate
-    window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
+    // window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
+    // Limit to max ~7.5 fps update rate
+    window.limit_update_rate(Some(std::time::Duration::from_micros(132800)));
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
-        agents.walk(&mut world);
+        agents.update(&mut world);
 
         // We unwrap here as we want this code to exit if it fails. Real applications may want to handle this in a different way
         window
