@@ -3,7 +3,9 @@ use rand::{Rng, seq, thread_rng};
 
 use crate::world_grid::WorldGrid;
 
-const TAG_RADIUS: u32 = 5;
+const TAG_RADIUS: u32 = 2;
+
+const MAX_VELOCITY: i32 = 2;
 
 /// A 2-dimensional vector for non-negative integers
 #[derive(Debug, Copy, Clone)]
@@ -80,12 +82,12 @@ impl Agents {
     #[inline]
     pub fn update(&mut self, world_grid: &mut WorldGrid) {
         self.walk(world_grid);
-        // Slow and *very* basic manhattan distance calc to find agents nearby to the tagged agent
+
         let tag_idx = self.tagged.iter().position(|&e| e).unwrap();
         let tag_pos = self.pos[tag_idx];
 
-        for y in (tag_pos.y.saturating_sub(TAG_RADIUS))..(tag_pos.y + TAG_RADIUS) {
-            for x in (tag_pos.x.saturating_sub(TAG_RADIUS))..(tag_pos.x + TAG_RADIUS) {
+        for y in (tag_pos.y.saturating_sub(TAG_RADIUS))..(tag_pos.y.saturating_add(TAG_RADIUS + 1)) {
+            for x in (tag_pos.x.saturating_sub(TAG_RADIUS))..(tag_pos.x.saturating_add(TAG_RADIUS + 1)) {
                 if x < world_grid.width && y < world_grid.height {
                     if let Some(agent_idx) = world_grid[{ Coord { x, y } }] {
                         self.tagged[tag_idx] = false;
@@ -108,7 +110,7 @@ impl Agents {
                 } else {
                     if random < 0.75 { vel.y -= 1; } else { vel.y += 1; }
                 }
-                vel.clamp(-2, 2);
+                vel.clamp(-1 * MAX_VELOCITY, MAX_VELOCITY);
             }
             let mut new_x = pos.x as i32 + vel.x;
             let mut new_y = pos.y as i32 + vel.y;

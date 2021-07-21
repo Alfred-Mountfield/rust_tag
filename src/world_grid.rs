@@ -11,6 +11,9 @@ const TAGGED_COLOUR: u32 = 16711680;
 // [0, 255, 0]
 const NORMAL_COLOUR: u32 = 65280;
 
+/// How many more pixels to draw around the tagged player to find it easier visually
+const TAGGED_SCALE_INCREASE: u32 = 2;
+
 #[derive(Debug, Default)]
 struct Cell {
     elements: Vec<usize>,
@@ -47,8 +50,16 @@ impl WorldGrid {
             }
         });
 
+        // Draw a slightly bigger box around the tagged player for purely visual purposes
         let tagged_idx = agents.tagged.iter().position(|&val| val).unwrap();
-        buffer[self.coord_to_idx(&agents.pos[tagged_idx])] = TAGGED_COLOUR;
+        let tagged_pos = &agents.pos[tagged_idx];
+        for y_coord in (tagged_pos.y.saturating_sub(TAGGED_SCALE_INCREASE))..(tagged_pos.y.saturating_add(TAGGED_SCALE_INCREASE + 1)) {
+            for x_coord in (tagged_pos.x.saturating_sub(TAGGED_SCALE_INCREASE))..(tagged_pos.x.saturating_add(TAGGED_SCALE_INCREASE + 1)) {
+                if y_coord < self.height && x_coord < self.width {
+                    buffer[self.coord_to_idx(&Coord{x: x_coord, y: y_coord})] = TAGGED_COLOUR;
+                }
+            }
+        }
 
         buffer
     }

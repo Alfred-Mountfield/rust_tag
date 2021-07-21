@@ -3,9 +3,9 @@ use minifb::{Key, Scale, Window, WindowOptions};
 use rust_tag::agents::Agents;
 use rust_tag::world_grid::WorldGrid;
 
-const WORLD_WIDTH: u32 = 1000;
-const WORLD_HEIGHT: u32 = 1000;
-const NUM_AGENTS: u32 = 1_000;
+const WORLD_WIDTH: u32 = 800;
+const WORLD_HEIGHT: u32 = 400;
+const NUM_AGENTS: u32 = 1000;
 
 fn main() {
     let mut world = WorldGrid::new(WORLD_WIDTH, WORLD_HEIGHT);
@@ -18,23 +18,38 @@ fn main() {
         WindowOptions {
             resize: true,
             scale: Scale::FitScreen,
+            // borderless: true,
             ..WindowOptions::default()
         },
     )
         .unwrap_or_else(|e| {
             panic!("{}", e);
         });
+    window.set_position(0, 0);
 
-    // Limit to max ~60 fps update rate
-    window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
-    // Limit to max ~7.5 fps update rate
-    // window.limit_update_rate(Some(std::time::Duration::from_micros(132800)));
+
+    // ~60fps
+    // 16600
+    // ~7.5fps
+    // 132800
+    // ~3.5fps
+    let mut limit_update_rate = 265600;
+
+    window.limit_update_rate(Some(std::time::Duration::from_micros(limit_update_rate)));
 
     let mut moving_avg = 0f64;
     let alpha = 1.0/20.0;
 
     let mut counter = 0;
     while window.is_open() && !window.is_key_down(Key::Escape) {
+        if window.is_key_down(Key::Left) {
+            limit_update_rate = (limit_update_rate as f64 * 1.2) as u64;
+            window.limit_update_rate(Some(std::time::Duration::from_micros(limit_update_rate)));
+        } else if window.is_key_down(Key::Right) {
+            limit_update_rate = (limit_update_rate as f64 * 0.8) as u64;
+            window.limit_update_rate(Some(std::time::Duration::from_micros(limit_update_rate)));
+        }
+
         let frame_timer = std::time::Instant::now();
         agents.update(&mut world);
 
