@@ -42,7 +42,7 @@ fn bench_update_density_medium(c: &mut Criterion) {
             b.iter_batched(
                 setup(world_width, world_height, num_agents),
                 run_update,
-                BatchSize::SmallInput,
+                BatchSize::LargeInput,
             )
         });
     }
@@ -59,7 +59,7 @@ fn bench_update_density_large(c: &mut Criterion) {
             b.iter_batched(
                 setup(world_width, world_height, num_agents),
                 run_update,
-                BatchSize::SmallInput,
+                BatchSize::LargeInput,
             )
         });
     }

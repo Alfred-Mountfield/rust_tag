@@ -12,6 +12,7 @@ criterion = "0.3.4"
 [dependencies]
 rand = "0.8.4"
 minifb = "0.19.3"
+nonmax = "0.5.0"
 
 [[bench]]
 name = "update"
