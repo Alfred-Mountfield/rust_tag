@@ -18,7 +18,6 @@ fn main() {
         WindowOptions {
             resize: true,
             scale: Scale::FitScreen,
-            // borderless: true,
             ..WindowOptions::default()
         },
     )
@@ -27,21 +26,19 @@ fn main() {
         });
     window.set_position(0, 0);
 
-
-    // ~60fps
-    // 16600
-    // ~7.5fps
-    // 132800
-    // ~3.5fps
+    /// Initial limit on how quickly a frame is allowed to update. ~60fps: 16600, ~7.5fps: 132800, ~3.5fps: 265600
     let mut limit_update_rate = 265600;
-
     window.limit_update_rate(Some(std::time::Duration::from_micros(limit_update_rate)));
 
     let mut moving_avg = 0f64;
-    let alpha = 1.0/20.0;
+    let moving_avg_alpha = 1.0/20.0;
 
-    let mut counter = 0;
+    let mut tagged_counter = 0;
+    let mut total_frames: i128 = 0;
+
     while window.is_open() && !window.is_key_down(Key::Escape) {
+        let frame_timer = std::time::Instant::now();
+
         if window.is_key_down(Key::Left) {
             limit_update_rate = (limit_update_rate as f64 * 2.0) as u64;
             window.limit_update_rate(Some(std::time::Duration::from_micros(limit_update_rate)));
@@ -50,8 +47,8 @@ fn main() {
             window.limit_update_rate(Some(std::time::Duration::from_micros(limit_update_rate)));
         }
 
-        let frame_timer = std::time::Instant::now();
-        agents.update(&mut world);
+        let tagged_this_frame = agents.update(&mut world);
+        if tagged_this_frame { tagged_counter += 1 };
 
         // We unwrap here as we want this code to exit if it fails. Real applications may want to handle this in a different way
         window
@@ -60,14 +57,12 @@ fn main() {
 
         let elapsed = frame_timer.elapsed();
         // exponential moving-average
-        moving_avg = (alpha * elapsed.as_micros() as f64) + (1.0 - alpha) * moving_avg;
+        moving_avg = (moving_avg_alpha * elapsed.as_micros() as f64) + (1.0 - moving_avg_alpha) * moving_avg;
 
-        counter += 1;
-        if counter % 60 == 0 {
-            counter = 0;
-            let fps = 1_000_000.0 / moving_avg;
-            // dbg!(fps);
-        }
-
+        total_frames += 1;
     }
+
+    println!("Ran for {} time-steps", total_frames);
+    println!("Averaged {:.2} time-steps between each tag", total_frames as f64 / tagged_counter as f64);
+    println!("Average frame-rate: {:.2}fps", 1_000_000.0 / moving_avg);
 }

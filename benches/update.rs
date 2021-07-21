@@ -11,7 +11,7 @@ fn setup(world_width: u32, world_height: u32, num_agents: u32) -> Box<dyn FnMut(
 }
 
 fn run_update((mut world, mut agents): (WorldGrid, Agents)) {
-    agents.update(&mut world)
+    agents.update(&mut world);
 }
 
 fn bench_update_density_small(c: &mut Criterion) {

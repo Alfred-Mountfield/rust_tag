@@ -85,7 +85,7 @@ impl Agents {
     }
 
     #[inline]
-    pub fn update(&mut self, world_grid: &mut WorldGrid) {
+    pub fn update(&mut self, world_grid: &mut WorldGrid) -> bool {
         self.walk(world_grid);
 
         self.has_tagged_in_sight = vec![false; self.pos.len() as usize];
@@ -143,13 +143,14 @@ impl Agents {
                             self.tagged[tagged_idx] = false;
                             self.tagged[agent_idx.get() as usize] = true;
                             self.last_tagged = tagged_idx as u32;
-                            // println!("Tagged");
-                            return;
+                            return true;
                         }
                     }
                 }
             }
         }
+
+        false
     }
 
     #[inline]
