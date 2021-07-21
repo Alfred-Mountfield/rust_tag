@@ -6,7 +6,7 @@ use crate::world_grid::WorldGrid;
 const TAG_RADIUS: u32 = 2;
 const AGENT_VIEW_DISTANCE: u32 = 8;
 
-const MAX_VELOCITY: i32 = 1;
+const MAX_VELOCITY: i32 = 2;
 
 /// A 2-dimensional vector for non-negative integers
 #[derive(Debug, Copy, Clone)]
