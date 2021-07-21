@@ -43,7 +43,7 @@ fn main() {
     let mut counter = 0;
     while window.is_open() && !window.is_key_down(Key::Escape) {
         if window.is_key_down(Key::Left) {
-            limit_update_rate = (limit_update_rate as f64 * 1.2) as u64;
+            limit_update_rate = (limit_update_rate as f64 * 1.5) as u64;
             window.limit_update_rate(Some(std::time::Duration::from_micros(limit_update_rate)));
         } else if window.is_key_down(Key::Right) {
             limit_update_rate = (limit_update_rate as f64 * 0.8) as u64;

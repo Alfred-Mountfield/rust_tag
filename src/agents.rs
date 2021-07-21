@@ -42,7 +42,7 @@ pub struct Agents {
     pub tagged: Vec<bool>,
     pub pos: Vec<Coord>,
     pub vel: Vec<Vec2>,
-    pub within_double_tagged_radius: Vec<bool>,
+    pub within_vicinity_of_tagged: Vec<bool>,
     pub last_tagged: u32
 }
 
@@ -78,7 +78,7 @@ impl Agents {
             tagged,
             pos,
             vel,
-            within_double_tagged_radius: vec![false; num_agents as usize],
+            within_vicinity_of_tagged: vec![false; num_agents as usize],
             last_tagged: 0
         }
     }
@@ -87,17 +87,22 @@ impl Agents {
     pub fn update(&mut self, world_grid: &mut WorldGrid) {
         self.walk(world_grid);
 
-        self.within_double_tagged_radius = vec![false; self.pos.len() as usize];
+        self.within_vicinity_of_tagged = vec![false; self.pos.len() as usize];
 
         let tag_idx = self.tagged.iter().position(|&e| e).unwrap();
         let tag_pos = self.pos[tag_idx];
 
-
-        for y in (tag_pos.y.saturating_sub(TAG_RADIUS * 10))..(tag_pos.y.saturating_add(TAG_RADIUS * 10 + 1)) {
-            for x in (tag_pos.x.saturating_sub(TAG_RADIUS * 10))..(tag_pos.x.saturating_add(TAG_RADIUS * 10 + 1)) {
+        for y in (tag_pos.y.saturating_sub(TAG_RADIUS * 5))..(tag_pos.y.saturating_add(TAG_RADIUS * 5 + 1)) {
+            for x in (tag_pos.x.saturating_sub(TAG_RADIUS * 5))..(tag_pos.x.saturating_add(TAG_RADIUS * 5 + 1)) {
                 if x < world_grid.width && y < world_grid.height {
-                    if let Some(agent_idx) = world_grid[{ Coord { x, y } }] {
-                        self.within_double_tagged_radius[agent_idx.get() as usize] = true;
+                    let nearby_coord = { Coord { x, y } };
+                    if let Some(agent_idx) = world_grid[nearby_coord] {
+                        let nearby_idx = agent_idx.get() as usize;
+
+                        if nearby_idx != tag_idx {
+                            self.within_vicinity_of_tagged[nearby_idx] = true;
+                            self.vel[nearby_idx] = calc_vector(tag_pos, nearby_coord);
+                        }
                     }
                 }
             }
@@ -112,7 +117,8 @@ impl Agents {
                             self.tagged[tag_idx] = false;
                             self.tagged[agent_idx.get() as usize] = true;
                             self.last_tagged = tag_idx as u32;
-                            break;
+                            println!("Tagged");
+                            return;
                         }
                     }
                 }
@@ -163,5 +169,12 @@ impl Agents {
                 world_grid[*pos] = NonMaxU32::new(idx as u32);
             }
         }
+    }
+}
+
+fn calc_vector(pos_1: Coord, pos_2: Coord) -> Vec2 {
+    Vec2 {
+        x: pos_2.x as i32 - pos_1.x as i32,
+        y: pos_2.y as i32 - pos_1.y as i32
     }
 }

@@ -62,7 +62,7 @@ impl WorldGrid {
         }
 
         // Draw a slightly bigger box around the tagged player for purely visual purposes
-        agents.within_double_tagged_radius.iter().enumerate().filter(|(_, &within_radius)| within_radius).for_each(|(idx, _)| {
+        agents.within_vicinity_of_tagged.iter().enumerate().filter(|(_, &within_radius)| within_radius).for_each(|(idx, _)| {
             buffer[self.coord_to_idx(&agents.pos[idx])] = 255;
         });
 
