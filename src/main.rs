@@ -3,9 +3,9 @@ use minifb::{Key, Scale, Window, WindowOptions};
 use rust_tag::agents::Agents;
 use rust_tag::world_grid::WorldGrid;
 
-const WORLD_WIDTH: u32 = 600;
-const WORLD_HEIGHT: u32 = 400;
-const NUM_AGENTS: u32 = 10_000;
+const WORLD_WIDTH: u32 = 200;
+const WORLD_HEIGHT: u32 = 200;
+const NUM_AGENTS: u32 = 5_000;
 
 fn main() {
     let mut world = WorldGrid::new(WORLD_WIDTH, WORLD_HEIGHT);
@@ -43,7 +43,7 @@ fn main() {
     let mut counter = 0;
     while window.is_open() && !window.is_key_down(Key::Escape) {
         if window.is_key_down(Key::Left) {
-            limit_update_rate = (limit_update_rate as f64 * 1.5) as u64;
+            limit_update_rate = (limit_update_rate as f64 * 2.0) as u64;
             window.limit_update_rate(Some(std::time::Duration::from_micros(limit_update_rate)));
         } else if window.is_key_down(Key::Right) {
             limit_update_rate = (limit_update_rate as f64 * 0.8) as u64;
@@ -66,7 +66,7 @@ fn main() {
         if counter % 60 == 0 {
             counter = 0;
             let fps = 1_000_000.0 / moving_avg;
-            dbg!(fps);
+            // dbg!(fps);
         }
 
     }

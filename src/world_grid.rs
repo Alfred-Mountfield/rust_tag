@@ -12,7 +12,7 @@ const TAGGED_COLOUR: u32 = 16711680;
 const NORMAL_COLOUR: u32 = 65280;
 
 /// How many more pixels to draw around the tagged player to find it easier visually
-const TAGGED_SCALE_INCREASE: u32 = 2;
+const TAGGED_SCALE_INCREASE: u32 = 0;
 
 #[derive(Debug, Default)]
 struct Cell {
@@ -62,7 +62,7 @@ impl WorldGrid {
         }
 
         // Draw a slightly bigger box around the tagged player for purely visual purposes
-        agents.within_vicinity_of_tagged.iter().enumerate().filter(|(_, &within_radius)| within_radius).for_each(|(idx, _)| {
+        agents.has_tagged_in_sight.iter().enumerate().filter(|(_, &within_radius)| within_radius).for_each(|(idx, _)| {
             buffer[self.coord_to_idx(&agents.pos[idx])] = 255;
         });
 
