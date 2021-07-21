@@ -3,7 +3,7 @@ use rand::{Rng, seq, thread_rng};
 
 use crate::world_grid::WorldGrid;
 
-const TAG_RADIUS: u32 = 2;
+const TAG_RADIUS: u32 = 4;
 
 const MAX_VELOCITY: i32 = 2;
 
@@ -42,6 +42,8 @@ pub struct Agents {
     pub tagged: Vec<bool>,
     pub pos: Vec<Coord>,
     pub vel: Vec<Vec2>,
+    pub within_double_tagged_radius: Vec<bool>,
+    pub last_tagged: u32
 }
 
 impl Agents {
@@ -76,6 +78,8 @@ impl Agents {
             tagged,
             pos,
             vel,
+            within_double_tagged_radius: vec![false; num_agents as usize],
+            last_tagged: 0
         }
     }
 
@@ -83,16 +87,33 @@ impl Agents {
     pub fn update(&mut self, world_grid: &mut WorldGrid) {
         self.walk(world_grid);
 
+        self.within_double_tagged_radius = vec![false; self.pos.len() as usize];
+
         let tag_idx = self.tagged.iter().position(|&e| e).unwrap();
         let tag_pos = self.pos[tag_idx];
+
+
+        for y in (tag_pos.y.saturating_sub(TAG_RADIUS * 10))..(tag_pos.y.saturating_add(TAG_RADIUS * 10 + 1)) {
+            for x in (tag_pos.x.saturating_sub(TAG_RADIUS * 10))..(tag_pos.x.saturating_add(TAG_RADIUS * 10 + 1)) {
+                if x < world_grid.width && y < world_grid.height {
+                    if let Some(agent_idx) = world_grid[{ Coord { x, y } }] {
+                        self.within_double_tagged_radius[agent_idx.get() as usize] = true;
+                    }
+                }
+            }
+        }
 
         for y in (tag_pos.y.saturating_sub(TAG_RADIUS))..(tag_pos.y.saturating_add(TAG_RADIUS + 1)) {
             for x in (tag_pos.x.saturating_sub(TAG_RADIUS))..(tag_pos.x.saturating_add(TAG_RADIUS + 1)) {
                 if x < world_grid.width && y < world_grid.height {
                     if let Some(agent_idx) = world_grid[{ Coord { x, y } }] {
-                        self.tagged[tag_idx] = false;
-                        self.tagged[agent_idx.get() as usize] = true;
-                        break;
+                        // Check it's not the tagged agent, or the last tagged
+                        if agent_idx.get() as usize != tag_idx  && agent_idx.get() != self.last_tagged {
+                            self.tagged[tag_idx] = false;
+                            self.tagged[agent_idx.get() as usize] = true;
+                            self.last_tagged = tag_idx as u32;
+                            break;
+                        }
                     }
                 }
             }

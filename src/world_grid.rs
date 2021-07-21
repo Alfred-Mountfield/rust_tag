@@ -4,7 +4,7 @@ use nonmax::NonMaxU32;
 
 use crate::agents::{Agents, Coord};
 
-//pre-calculated u32 colours from RGB found by ((rgb[0] as u32) << 16) | ((rgb[1] as u32) << 8) | rgb[2] as u32)
+//pre-calculated u32 colours from RGB found by ((rgb[0] as u32) << 16) | ((rgb[1] as u32) << 8) | rgb[2] as u32
 
 // [255, 0, 0]
 const TAGGED_COLOUR: u32 = 16711680;
@@ -60,6 +60,11 @@ impl WorldGrid {
                 }
             }
         }
+
+        // Draw a slightly bigger box around the tagged player for purely visual purposes
+        agents.within_double_tagged_radius.iter().enumerate().filter(|(_, &within_radius)| within_radius).for_each(|(idx, _)| {
+            buffer[self.coord_to_idx(&agents.pos[idx])] = 255;
+        });
 
         buffer
     }

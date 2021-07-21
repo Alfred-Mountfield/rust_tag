@@ -3,9 +3,9 @@ use minifb::{Key, Scale, Window, WindowOptions};
 use rust_tag::agents::Agents;
 use rust_tag::world_grid::WorldGrid;
 
-const WORLD_WIDTH: u32 = 800;
+const WORLD_WIDTH: u32 = 600;
 const WORLD_HEIGHT: u32 = 400;
-const NUM_AGENTS: u32 = 1000;
+const NUM_AGENTS: u32 = 10_000;
 
 fn main() {
     let mut world = WorldGrid::new(WORLD_WIDTH, WORLD_HEIGHT);
@@ -68,5 +68,6 @@ fn main() {
             let fps = 1_000_000.0 / moving_avg;
             dbg!(fps);
         }
+
     }
 }
